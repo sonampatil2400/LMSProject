@@ -1,9 +1,11 @@
 package lms.view;
 
 import lms.bean.Book;
+import lms.bean.IssueDetails;
 import lms.dao.LmsDao;
 
 import java.sql.SQLOutput;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -53,7 +55,8 @@ public class LmsView {
                         System.out.println("\t    3. Delete Books");
                         System.out.println("\t    4. Search Books");
                         System.out.println("\t    5. View Books");
-                        System.out.println("\t    6.Go to Main Menu ");
+                        System.out.println("\t    6. Issue Books");
+                        System.out.println("\t    7.Go to Main Menu ");
                         System.out.println("\t_______________");
                         System.out.println("\tEnter your choice : ");
                         choice1 = sc.nextInt();
@@ -66,21 +69,21 @@ public class LmsView {
                         } else if (choice1 == 4) {
                             searchBooks();
                         }
-                    } while (choice1 != 6);
+                    } while (choice1 != 7);
                 }
             } else if (choice == 2) {
-                String userName;
+                Integer userId;
                 userloop1:
                 do {
-                    System.out.println("Enter your User name : ");
-                    userName = sc.next();
-                    if (userName == null) {
+                    System.out.println("Enter your User Id : ");
+                    userId = sc.nextInt();
+                    if (userId == null) {
                         System.out.println("Invalid User ... Please re enter user name");
                         continue userloop1;
                     }
-                } while (userName == null);
-                if (userName != null) {
-                    System.out.println("Welcome " + userName);
+                } while (userId == null);
+                if (userId != null) {
+                    System.out.println("Welcome " + userId);
                     int choice1 = 1;
                     do {
                         System.out.println("\t____  Options  ____");
@@ -98,7 +101,7 @@ public class LmsView {
                         } else if (choice1 == 2) {
                             searchStudentBooks();
                         } else if (choice1 == 3) {
-                            orderBooks();
+                            orderBooks(userId);
                         } else if (choice1 == 4) {
                             returnBooks();
                         }
@@ -121,12 +124,38 @@ public class LmsView {
 
     }
 
-    private void orderBooks() {
+    private void orderBooks(int userid) {
+        lmsDao.viewAllBooks();
+
+
+        System.out.println("\t Enter book id to be ordered: ");
+        int bid = sc.nextInt();
+
+        lmsDao.orderBooks(userid, bid);
+
+    }
+
+    private void issueBooks() {
+
+        System.out.println("\t Pending Issue requests are : ");
+        ArrayList<IssueDetails> pendingIssueRequestsList = lmsDao.pendingIssueRequests();
+        for (IssueDetails issueDetail : pendingIssueRequestsList) {
+            System.out.println("  " + issueDetail.getBookId() + "   " + issueDetail.getUserId());
+        }
+        System.out.println(" Enter book id to be issued");
+        int bid = sc.nextInt();
+        System.out.println("Enter userid whose book is to be issued ");
+        int userid = sc.nextInt();
+
 
     }
 
     private void returnBooks() {
+        Book book = new Book();
+        System.out.println("\t Enter book id to return. ");
+        book.setBookId(sc.nextInt());
 
+        lmsDao.returnBooks();
     }
 
     private void addBooks() {
@@ -143,6 +172,7 @@ public class LmsView {
         lmsDao.addBooks(book);
 
     }
+
 
     private void updateBooks() {
         Book book = new Book();

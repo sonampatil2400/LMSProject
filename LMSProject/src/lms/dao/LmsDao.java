@@ -1,6 +1,7 @@
 package lms.dao;
 
 import lms.bean.Book;
+import lms.bean.IssueDetails;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -109,7 +110,56 @@ public class LmsDao {
 
     }
 
-    public void orderBooks() {
+    public ArrayList<IssueDetails> pendingIssueRequests() {
+        try (PreparedStatement pst = con.prepareStatement(" select bookid, userid from issuedetails where issuedate = null")) {
+            rs = pst.executeQuery();
+
+
+            ArrayList<IssueDetails> issueDetailsList = new ArrayList<>();
+
+            while (rs.next()) {
+                int bid = rs.getInt("bookid");
+                int userid = rs.getInt("userid");
+
+                IssueDetails issueDetails = new IssueDetails();
+                issueDetails.setBookId(bid);
+                issueDetails.setUserId(userid);
+
+                issueDetailsList.add(issueDetails);
+            }
+            return issueDetailsList;
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
+    }
+
+    public void issueBook(int bookId, int userId){
+        try (PreparedStatement pst = con.prepareStatement(" update issuedate=CURDATE() where bookid=?, userid=?")){
+            pst.setInt(1,bookId);
+            pst.setInt(2,userId);
+            rs=pst.executeQuery();
+            System.out.println( bookId + " Book has been issued. ");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+        public void orderBooks(int userid, int bid) {
+        try (PreparedStatement pst = con.prepareStatement(" insert into issuedetails(uderid, bookid) values(?,?)")){
+
+            pst.setInt(1,userid);
+            pst.setInt(2,bid);
+            rs=pst.executeQuery();
+            System.out.println("Order for " + bid + " has been placed for user " + userid);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
