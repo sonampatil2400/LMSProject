@@ -1,13 +1,14 @@
 package lms.dao;
 
 import lms.bean.Book;
+import lms.bean.IssueDetails;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class LmsDao {
-
-
     public static Connection con;
     ResultSet rs, rs1;
     static Statement st, st1;
@@ -63,12 +64,10 @@ public class LmsDao {
             System.out.println("update handled: " + e);
             e.printStackTrace();
         }
-
         return rowsupdated;
     }
 
     public int deleteBooks(Book book) {
-
         int rowsupdated = 0;
         try (PreparedStatement pst = con.prepareStatement("delete from books where bookid=?")) {
             pst.setInt(1, book.getBookId());
@@ -77,22 +76,126 @@ public class LmsDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return rowsupdated;
     }
 
-    public int searchBooks(Book book) {
-
-        int rowsupdated = 0;
+    public Book searchBooks(int bookid) {
         try (PreparedStatement pst = con.prepareStatement("select * from books where bookid=?")) {
-            pst.setInt(1, book.getBookId());
+            pst.setInt(1, bookid);
+            rs = pst.executeQuery();
+            System.out.println(" BookId " + "  " + " Book Name " + "  " + " Publisher " + "  " + " Quantity " + "  " + " Author");
+            Book book = new Book();
 
+            while (rs.next()) {
+                int bId = rs.getInt("bookid");
+                String bName = rs.getString(2);
+                String bPublisher = rs.getString(3);
+                int bQuantity = rs.getInt(4);
+                String bAuthor = rs.getString(5);
+
+                book.setBookId(bId);
+                book.setBookName(bName);
+                book.setPublisher(bPublisher);
+                book.setQuantity(bQuantity);
+                book.setAuthor(bAuthor);
+                return book;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void returnBooks() {
+
+    }
+
+    public ArrayList<IssueDetails> pendingIssueRequests() {
+        try (PreparedStatement pst = con.prepareStatement(" select bookid, userid from issuedetails where issuedate = null")) {
+            rs = pst.executeQuery();
+
+
+            ArrayList<IssueDetails> issueDetailsList = new ArrayList<>();
+
+            while (rs.next()) {
+                int bid = rs.getInt("bookid");
+                int userid = rs.getInt("userid");
+
+                IssueDetails issueDetails = new IssueDetails();
+                issueDetails.setBookId(bid);
+                issueDetails.setUserId(userid);
+
+                issueDetailsList.add(issueDetails);
+            }
+            return issueDetailsList;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void issueBook(int bookId, int userId) {
+        int rowsupdated = 0;
+        try (PreparedStatement pst = con.prepareStatement(" update issuedetails set issuedate=CURDATE() where bookid=? and userid=?")) {
+            pst.setInt(1, bookId);
+            pst.setInt(2, userId);
             rowsupdated = pst.executeUpdate();
+            System.out.println(" Book with book Id  " + bookId + "   has been issued to User  " + userId);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void orderBooks(int userid, int bid) {
+        int rowsaffected = 0;
+        try (PreparedStatement pst = con.prepareStatement(" insert into issuedetails(userid, bookid) values(?,?)")) {
+
+            pst.setInt(1, userid);
+            pst.setInt(2, bid);
+            rowsaffected = pst.executeUpdate();
+            System.out.println("Order for " + bid + " has been placed for user " + userid);
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return rowsupdated;
+
+    }
+
+    public List<Book> viewAllBooks() {
+        try (PreparedStatement pst = con.prepareStatement("select * from books")) {
+            rs = pst.executeQuery();
+            System.out.println(" BookId " + "  " + " Book Name " + "  " + " Publisher " + "  " + " Quantity " + "  " + " Author");
+
+            ArrayList<Book> bookList = new ArrayList<>();
+
+            while (rs.next()) {
+                int bId = rs.getInt(1);
+                String bName = rs.getString(2);
+                String bPublisher = rs.getString(3);
+                int bQuantity = rs.getInt(4);
+                String bAuthor = rs.getString(5);
+
+                Book book = new Book();
+                book.setBookId(bId);
+                book.setBookName(bName);
+                book.setPublisher(bPublisher);
+                book.setQuantity(bQuantity);
+                book.setAuthor(bAuthor);
+
+                bookList.add(book);
+
+            }
+            return bookList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void searchStudentBooks() {
+
     }
 
     public void closeResources() {
