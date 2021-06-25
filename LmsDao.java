@@ -108,6 +108,7 @@ public class LmsDao {
 
     public void returnBooks() {
 
+
     }
 
     public ArrayList<IssueDetails> pendingIssueRequests() {
@@ -146,6 +147,37 @@ public class LmsDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<IssueDetails> viewIssuedBookInformation() {
+
+        try (PreparedStatement pst = con.prepareStatement("select * from issuedetails where issuedate IS NOT NULL")) {
+            rs = pst.executeQuery();
+            System.out.println("\t Issued book information : ");
+
+            ArrayList<IssueDetails> issueDetailsList = new ArrayList<>();
+            while (rs.next()) {
+                int issueId = rs.getInt(1);
+                int bookId = rs.getInt(2);
+                int userId = rs.getInt(3);
+                Date issueDate = rs.getDate(4);
+                Date returnDate = rs.getDate(5);
+
+                IssueDetails issueDetails = new IssueDetails();
+                issueDetails.setIssueId(issueId);
+                issueDetails.setBookId(bookId);
+                issueDetails.setUserId(userId);
+                issueDetails.setIssueDate(issueDate);
+                issueDetails.setReturnDate(returnDate);
+
+                issueDetailsList.add(issueDetails);
+
+            }
+            return issueDetailsList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void orderBooks(int userid, int bid) {

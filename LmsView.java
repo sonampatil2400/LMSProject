@@ -106,13 +106,14 @@ public class LmsView {
                             orderBooks(userId);
                         } else if (choice1 == 4) {
                             returnBooks();
+                        } else if (choice1 == 5) {
+                            viewIssuedBookInformation();
                         }
                     } while (choice1 != 6);
                 }
             }
         } while (choice != 3);
     }
-
 
     private void viewAllBooks() {
         List<Book> b = lmsDao.viewAllBooks();
@@ -139,7 +140,6 @@ public class LmsView {
     }
 
     private void issueBooks() {
-        System.out.println("Hi");
         System.out.println(" Enter book id to be issued");
         int bid = sc.nextInt();
         System.out.println("Enter userid whose book is to be issued ");
@@ -150,8 +150,15 @@ public class LmsView {
             System.out.println("  " + issueDetail.getBookId() + "   " + issueDetail.getUserId());
         }
 
-
         lmsDao.issueBook(bid, userid);
+    }
+
+    private void viewIssuedBookInformation() {
+        List<IssueDetails> issueDetails = lmsDao.viewIssuedBookInformation();
+        System.out.println(" Issue Id  " + "  " + " Book Id  " + "  " + " User Id " + "  " + "  Issue date " + "  " + " Return Date");
+        for (IssueDetails details : issueDetails) {
+            System.out.println(details.getIssueId() + "   " + details.getBookId() + "  " + details.getUserId() + "  " + details.getIssueDate() + "  " + details.getReturnDate());
+        }
     }
 
     private void returnBooks() {
