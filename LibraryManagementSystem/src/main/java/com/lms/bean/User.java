@@ -8,6 +8,9 @@ public class User {
     String userType;
     int issuedBookId;
 
+    public User() {
+    }
+
     public int getUserId() {
         return userId;
     }
@@ -48,8 +51,5 @@ public class User {
                 ", userType='" + userType + '\'' +
                 ", issuedBookId=" + issuedBookId +
                 '}';
-    }
-
-    public User() {
     }
 }
